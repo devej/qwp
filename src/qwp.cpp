@@ -117,14 +117,13 @@ int main( int argc, char**argv )
 				continue;
 
 			if( !rows[x].alignswith( rows[y] ) ) {
-				//rows[x].others_.push_back( &rows[y] );
-				rows[x].others2_.push_back( y );
+				rows[x].others_.push_back( y );
 				//fprintf( stdout, "%lu ", y );
 			}
 		}
 
 		// set 1st layer of "multipliers" while we're iterating (save iterating again later)
-		last_mult[x] = rows[x].others2_.size();
+		last_mult[x] = rows[x].others_.size();
 		//fprintf( stdout, "\n" );
 	}
 
@@ -142,13 +141,13 @@ int main( int argc, char**argv )
 		//fprintf( stdout, "H=%lu\n", h );
 		for( uint64_t x = 0; x < rows_size; ++x )
 		{
-			const uint64_t osz = rows[x].others2_.size();
+			const uint64_t osz = rows[x].others_.size();
 
 			for( uint64_t o = 0; o < osz; ++o )
 			{
 				//fprintf( stdout, "\tthis_mult[ row[%lu]->%lu ] += %lu",
 				//		x, rows[x].others_[o]->index_, last_mult[x] );
-				this_mult[ rows[x].others2_[o] ] += last_mult[x];
+				this_mult[ rows[x].others_[o] ] += last_mult[x];
 				//fprintf( stdout, " == %lu\n", this_mult[ rows[x].others_[o]->index_ ] );
 			}
 		}
