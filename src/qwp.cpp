@@ -116,10 +116,13 @@ int main( int argc, char**argv )
 
 
     std::vector< uint64_t > last_mult( rows_size );
+    std::vector< uint64_t > this_mult( rows_size );
 
 
     // Calculate & store each row's matching rows (its "others")
     // i.e. How many other rows are compatible w/ each row?
+    uint64_t calcs = 0;
+
     for( uint64_t x = 0; x < rows_size; ++x )
     {
         for( uint64_t y = 0; y < rows_size; ++y )
@@ -128,7 +131,7 @@ int main( int argc, char**argv )
             if( x == y )
                 continue;
 
-            if( !rows[x].alignswith( rows[y] ) ) {
+            if( !rows[x].AlignsWith2( rows[y] ) ) {
                 rows[x].others_.push_back( y );
             }
         }
@@ -137,8 +140,8 @@ int main( int argc, char**argv )
         last_mult[x] = rows[x].others_.size();
     }
 
+    fprintf( stdout, "Calcs = %lu\n", calcs );
 
-    std::vector< uint64_t > this_mult( rows_size );
     const auto sz = rows_size * sizeof this_mult[0];
     //Height -= 2;  // since we already calculated first row and it's others
 
@@ -202,13 +205,13 @@ void MakeRows( const MakeRowContext& mrc )
     Row r3 = mrc.row_;  //row;
 
     // 2brick
-    Brick b2(2);
+    const Brick b2(2);
     const uint64_t w2 = r2.AddBrick( b2, mrc.max_width_ );
     if( w2 )
         MakeRows( MakeRowContext{w2, mrc.max_width_, r2} );
 
     // 3brick
-    Brick b3(3);
+    const Brick b3(3);
     const uint64_t w3 = r3.AddBrick( b3, mrc.max_width_ );
     if( w3 )
         MakeRows( MakeRowContext{w3, mrc.max_width_, r3} );
@@ -219,7 +222,7 @@ void MakeRows( const MakeRowContext& mrc )
     if( !w2 && !w3 )
     {
         if( mrc.row_.width_ == mrc.max_width_ ) {
-            mrc.row_.makeseams();
+            mrc.row_.MakeSeams();
             rows.push_back( mrc.row_ );
         }
     }
