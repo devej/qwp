@@ -27,22 +27,22 @@ struct Brick
 class Row
 {
 public:
-	uint64_t				index_;
-	std::vector< Brick >	bricks_;
-	std::set< uint64_t >	seams_;
-	std::vector< uint64_t >	others_;
+	std::vector< Brick >    bricks_;    // the bricks in this row
+	std::vector< uint64_t > seams_;     // the seams that the bricks make
+	std::vector< uint64_t > others_;    // all the other rows that do not align with this row
 
-	// cache the row width so it doesn't need re-calculating all the time
-	uint64_t				width_;
+	uint64_t                width_;     // cache the row width so it doesn't need re-calculating all the time
 
 
-	Row() : index_(0), width_(0) {
-		others_.reserve( 2048 );
+	Row() : width_(0) {
+		others_.reserve( 2048 );    // swag
 	}
 
 
 	uint64_t AddBrick( const Brick& b, uint64_t max_width )
 	{
+	    // add a new brick if possible
+	    // return the new width or 0 if not possible to add
 		if( (width_ + b.width_) > max_width )
 			return 0;
 
@@ -52,63 +52,40 @@ public:
 	}
 
 
-	uint64_t GetWidth()
-	{
-		return width_;
-	}
+//	uint64_t GetWidth() const
+//	{
+//		return width_;
+//	}
 
 
-	void print()
-	{
-#ifdef cpp11
-		for( Brick brick: bricks_ )
-			fprintf( stdout, "%lu ", brick.width_ );
-#else
-		std::vector< Brick >::iterator i = bricks_.begin();
-		std::vector< Brick >::iterator end = bricks_.end();
-		for( ; i != end; ++i )
-			fprintf( stdout, "%lu ", i->width_ );
-#endif
-		
-		fprintf( stdout, "\n" );
-	}
+//	void print()
+//	{
+//		for( auto brick: bricks_ )
+//			fprintf( stdout, "%lu ", brick.width_ );
+//
+//		fprintf( stdout, "\n" );
+//	}
 
 
-	bool alignswith( Row& rhs )
+	bool alignswith( const Row& rhs ) const
 	{
 		// Compare each of my seams to the other guy's seams
 		// If I find a match, I align.
-//#ifdef cpp11
-//		// optimization: check first brick - ~50% of the time it will be the same
-//		if( *seams_.begin() == *rhs.seams_.begin() )
-//			return true;
-//
-//		auto e = rhs.seams_.end();
-//
-//		for( auto seam : seams_ )
-//		{
-//			if( e != rhs.seams_.find( seam ) )
-//				return true;
-//		}
-//#else
-		// I think the cpp98 style is a little faster
-		std::set< uint64_t >::iterator i = seams_.begin();
-		std::set< uint64_t >::iterator end = seams_.end();
-		std::set< uint64_t >::iterator e = rhs.seams_.end();
 
-		// optimization: check first brick - ~50% of the time it will be the same
-		if( *i == *rhs.seams_.begin() )
-			return true;
+	    auto rhsseam = rhs.seams_.begin();
+		const auto rhsend = rhs.seams_.end();
 
-		++i;
-
-		for( ; i != end; ++i )
+		for( auto myseam : seams_ )
 		{
-			if( e != rhs.seams_.find( *i ) )
-				return true;
+		    for( ; rhsseam != rhsend; ++rhsseam )
+		    {
+                if( myseam == *rhsseam )
+                    return true;
 
+                if( myseam < *rhsseam ) // need to search the rest?
+                    break;      // nope
+		    }
 		}
-//#endif
 
 		return false;
 	}
@@ -116,21 +93,16 @@ public:
 
 	void makeseams()
 	{
-		// calculate my seams
-		//seams_.clear();
+		// calculate & cache my seams
 		uint64_t c = 0;
-#ifdef cpp11
+
 		auto i = bricks_.begin();
-		auto end = bricks_.end() - 1;	// exclude the last entry
-#else
-		std::vector< Brick >::iterator i = bricks_.begin();
-		std::vector< Brick >::iterator end = bricks_.end() - 1;	// exclude the last entry
-#endif
+		auto end = bricks_.end() - 1;	// exclude the last brick - it's not a seam
 
 		for( ; i < end; ++i )
 		{
 			c += i->width_;
-			seams_.insert( c );
+			seams_.push_back( c );
 		}
 	}
 };
