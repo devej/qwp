@@ -49,7 +49,7 @@ public:
     }
 
 
-    bool AlignsWith( const Row& rhs ) const
+    bool AlignsWith( const Row& rhs, uint64_t& calcs ) const
     {
         // Compare each of my seams to the other guy's seams
         // If I find a match, I align.
@@ -61,6 +61,8 @@ public:
         {
             for( ; rhsseam != rhsend; ++rhsseam )
             {
+                ++calcs;
+
                 if( myseam == *rhsseam )
                     return true;
 
@@ -77,18 +79,18 @@ public:
     // A slightly different method of doing the same thing as AlignsWith.
     // It's a little faster .
     //
-    bool AlignsWith2( const Row& rhs ) const
+    bool AlignsWith2( const Row& rhs, uint64_t& calcs ) const
     {
         // Compare each of my seams to the other guy's seams
         // If I find a match, I align.
 
-        // optimization? ~50% of first seams will be the same (either a 2 or a 3)
+        // optimization. ~50% of first seams will be the same (either a 2 or a 3)
         if( seams_[0] == rhs.seams_[0] )
             return true;
 
         // optimization? ~25% of second seams will be the same (either a 4/5 or 5/6)
-        //if( seams_[1] == rhs.seams_[1] )
-        //    return true;
+        if( seams_[1] == rhs.seams_[1] )
+            return true;
 
         const uint64_t mysz = seams_.size();
         const uint64_t rhssz = rhs.seams_.size();
@@ -98,6 +100,8 @@ public:
         {
             for( ; y < rhssz; ++y )
             {
+                ++calcs;
+
                 if( seams_[x] == rhs.seams_[y] )
                     return true;
 

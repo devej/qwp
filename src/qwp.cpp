@@ -121,6 +121,7 @@ int main( int argc, char**argv )
 
     // Calculate & store each row's matching rows (its "others")
     // i.e. How many other rows are compatible w/ each row?
+    uint64_t iters = 0;
     uint64_t calcs = 0;
 
     for( uint64_t x = 0; x < rows_size; ++x )
@@ -131,7 +132,9 @@ int main( int argc, char**argv )
             if( x == y )
                 continue;
 
-            if( !rows[x].AlignsWith2( rows[y] ) ) {
+            ++iters;
+
+            if( !rows[x].AlignsWith2( rows[y], calcs ) ) {
                 rows[x].others_.push_back( y );
             }
         }
@@ -140,7 +143,6 @@ int main( int argc, char**argv )
         last_mult[x] = rows[x].others_.size();
     }
 
-    fprintf( stdout, "Calcs = %lu\n", calcs );
 
     const auto sz = rows_size * sizeof this_mult[0];
     //Height -= 2;  // since we already calculated first row and it's others
@@ -183,6 +185,8 @@ int main( int argc, char**argv )
     fprintf( stdout, "w( %lu, %lu ) == %lu (%lu msecs)\n", Width, (Height+2), matches, TotalTime );
     fprintf( stdout, "   MakeRows  : %lu\n", MakeRowTime );
     fprintf( stdout, "   MakeOthers: %lu\n", MakeOthersTime );
+    fprintf( stdout, "        iters: %lu\n", iters );
+    fprintf( stdout, "        calcs: %lu\n", calcs );
     fprintf( stdout, "   Calc      : %lu\n", CalcTime );
     // w( 9, 3 )   ==  8
     // w( 9, 4 )   == 10
