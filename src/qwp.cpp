@@ -135,7 +135,7 @@ int main( int argc, char**argv )
             ++iters;
 
             if( !rows[x].AlignsWith2( rows[y], calcs ) ) {
-                rows[x].others_.push_back( y );
+                rows[x].others_.emplace_back( y );
             }
         }
 
@@ -172,7 +172,7 @@ int main( int argc, char**argv )
 
 
     // sum the possibilities
-    for( auto m: last_mult )
+    for( const auto & m: last_mult )
         matches += m;
 
 
@@ -183,11 +183,11 @@ int main( int argc, char**argv )
     const auto TotalTime = std::chrono::duration_cast< std::chrono::milliseconds >( CalcStop - start ).count();
 
     fprintf( stdout, "w( %lu, %lu ) == %lu (%lu msecs)\n", Width, (Height+2), matches, TotalTime );
-    fprintf( stdout, "   MakeRows  : %lu\n", MakeRowTime );
-    fprintf( stdout, "   MakeOthers: %lu\n", MakeOthersTime );
-    fprintf( stdout, "        iters: %lu\n", iters );
-    fprintf( stdout, "        calcs: %lu\n", calcs );
-    fprintf( stdout, "   Calc      : %lu\n", CalcTime );
+    fprintf( stdout, "   MakeRows ms: %lu\n", MakeRowTime );
+    fprintf( stdout, " MakeOthers ms: %lu\n", MakeOthersTime );
+    fprintf( stdout, "       Calc ms: %lu\n", CalcTime );
+    fprintf( stdout, "         iters: %lu\n", iters );
+    fprintf( stdout, "         calcs: %lu\n", calcs );
     // w( 9, 3 )   ==  8
     // w( 9, 4 )   == 10
     // w( 9, 5 )   == 14
@@ -227,7 +227,7 @@ void MakeRows( const MakeRowContext& mrc )
     {
         if( mrc.row_.width_ == mrc.max_width_ ) {
             mrc.row_.MakeSeams();
-            rows.push_back( mrc.row_ );
+            rows.emplace_back( mrc.row_ );
         }
     }
 }

@@ -33,6 +33,8 @@ public:
 
     Row() : width_(0) {
         others_.reserve( 2048 );    // swag
+        seams_.reserve( 64 );
+        others_.reserve( 256 );
     }
 
 
@@ -43,7 +45,7 @@ public:
         if( (width_ + b.width_) > max_width )
             return 0;
 
-        bricks_.push_back( b );
+        bricks_.emplace_back( b );
         width_ += b.width_;
         return width_;
     }
@@ -57,7 +59,7 @@ public:
         auto rhsseam = rhs.seams_.begin();
         const auto rhsend = rhs.seams_.end();
 
-        for( auto myseam : seams_ )
+        for( auto& myseam : seams_ )
         {
             for( ; rhsseam != rhsend; ++rhsseam )
             {
@@ -124,7 +126,7 @@ public:
         for( ; i < end; ++i )
         {
             c += i->width_;
-            seams_.push_back( c );
+            seams_.emplace_back( c );
         }
     }
 };
