@@ -13,7 +13,7 @@
     #warning "not using c++11 - good luck"
 #else
     #define cpp11
-    #pragma message "using c++ 11"
+    //#pragma message "using c++ 11"
 #endif
 
 
@@ -220,13 +220,12 @@ void MakeRows( const MakeRowContext& mrc )
     if( w3 )
         MakeRows( MakeRowContext{w3, mrc.max_width_, r3} );
 
-    // If we can't add either, we have maxed out.
+    // If we can't add either, we have maxed out this row.
     // If our width == the max, save this complete row.
-    // Only make seems and save complete rows.
     if( !w2 && !w3 )
     {
         if( mrc.row_.width_ == mrc.max_width_ ) {
-            mrc.row_.MakeSeams();
+            //mrc.row_.MakeSeams();
             rows.emplace_back( mrc.row_ );
         }
     }

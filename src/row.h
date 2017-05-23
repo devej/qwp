@@ -9,6 +9,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <cstdint>
+#include <numeric>
 
 
 
@@ -24,7 +25,7 @@ struct Brick
 class Row
 {
 public:
-    std::vector< Brick >    bricks_;    // the bricks in this row
+    //std::vector< Brick >    bricks_;    // the bricks in this row
     std::vector< uint64_t > seams_;     // the seams that the bricks make
     std::vector< uint64_t > others_;    // all the row #s that do not align with this row
 
@@ -34,7 +35,6 @@ public:
     Row() : width_(0) {
         others_.reserve( 2048 );    // swag
         seams_.reserve( 64 );
-        others_.reserve( 256 );
     }
 
 
@@ -45,7 +45,15 @@ public:
         if( (width_ + b.width_) > max_width )
             return 0;
 
-        bricks_.emplace_back( b );
+        // I don't really need the bricks, just the seams.
+        //bricks_.emplace_back( b );
+
+        //std::accumulate( seams_.begin(), seams_.end(), 0 )
+        // but you have to ignore the last brick/seam
+        //seams_.emplace_back( width_ + b.width_ );
+        if( width_ )
+            seams_.emplace_back( width_ );
+
         width_ += b.width_;
         return width_;
     }
@@ -79,7 +87,7 @@ public:
 
     //
     // A slightly different method of doing the same thing as AlignsWith.
-    // It's a little faster .
+    // It's a little faster.
     //
     bool AlignsWith2( const Row& rhs, uint64_t& calcs ) const
     {
@@ -115,20 +123,20 @@ public:
         return false;
     }
 
-    void MakeSeams()
-    {
-        // calculate & cache my seams
-        uint64_t c = 0;
-
-        auto i = bricks_.begin();
-        auto end = bricks_.end() - 1;	// exclude the last brick - it's not a seam
-
-        for( ; i < end; ++i )
-        {
-            c += i->width_;
-            seams_.emplace_back( c );
-        }
-    }
+//    void MakeSeams()
+//    {
+//        // calculate & cache my seams
+//        uint64_t c = 0;
+//
+//        auto i = bricks_.begin();
+//        auto end = bricks_.end() - 1;	// exclude the last brick - it's not a seam
+//
+//        for( ; i < end; ++i )
+//        {
+//            c += i->width_;
+//            seams_.emplace_back( c );
+//        }
+//    }
 };
 
 
