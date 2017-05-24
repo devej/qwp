@@ -6,7 +6,7 @@
 
 //
 // My first iteration of this tried to do it both with and without c++11.
-// I've  abandoned that approach, but left this bit here for science.
+// I've abandoned that approach, but left this bit here for science.
 //
 #if __cplusplus < 201103L
     #include <bits/c++0x_warning.h>
@@ -30,18 +30,7 @@
 
 typedef std::chrono::high_resolution_clock::time_point	time_point_t;
 
-
-// reduce the number of args passed to MakeRows with this struct
-// doesn't really help performance of MakeRows much
-struct MakeRowContext {
-    MakeRowContext( uint64_t x, uint64_t m, Row& r ) : x_(x), max_width_(m), row_(r) {}
-    const uint64_t x_;
-    const uint64_t max_width_;
-    Row& row_;
-};
-
-void MakeRows( const MakeRowContext& mrc  );
-//void MakeRows( uint64_t x, uint64_t max, Row& row );
+void MakeRows( Row& row  );
 
 typedef std::vector< Row > Rows;
 
@@ -98,9 +87,9 @@ int main( int argc, char**argv )
     }
 
 
-    Row r;
+    Row r( Width );
     matches = 0;
-    MakeRows( MakeRowContext{ 0, Width, r } );
+    MakeRows( r );
     const auto rows_size = rows.size();	// cache this value since I'll use it a couple times
 
     // midpoint timestamp
@@ -199,35 +188,31 @@ int main( int argc, char**argv )
 //
 //  Makes all the possible rows for a given width
 //
-//void MakeRows( uint64_t x, uint64_t max_width, Row& row )
-void MakeRows( const MakeRowContext& mrc )
+void MakeRows( Row& row )
 {
-    // for each position (x), try a 2brick & a 3brick, until we reach or exceed the max
+    // for each row, try adding 2brick & a 3brick, until we reach or exceed the max
 
     // make a copy for each branch
-    Row r2 = mrc.row_;  //row;
-    Row r3 = mrc.row_;  //row;
+    Row r2 = row;  //row;
+    Row r3 = row;  //row;
 
     // 2brick
-    const Brick b2(2);
-    const uint64_t w2 = r2.AddBrick( b2, mrc.max_width_ );
+    const uint64_t w2 = r2.AddBrick( Brick{2} );
     if( w2 )
-        MakeRows( MakeRowContext{w2, mrc.max_width_, r2} );
+        MakeRows( r2 );
 
     // 3brick
-    const Brick b3(3);
-    const uint64_t w3 = r3.AddBrick( b3, mrc.max_width_ );
+    const uint64_t w3 = r3.AddBrick( Brick{3} );
     if( w3 )
-        MakeRows( MakeRowContext{w3, mrc.max_width_, r3} );
+        MakeRows( r3 );
 
     // If we can't add either, we have maxed out this row.
     // If our width == the max, save this complete row.
     if( !w2 && !w3 )
     {
-        if( mrc.row_.width_ == mrc.max_width_ ) {
+        if( row.width_ == row.max_width_ ) {
             //mrc.row_.MakeSeams();
-            rows.emplace_back( mrc.row_ );
+            rows.emplace_back( row );
         }
     }
 }
-

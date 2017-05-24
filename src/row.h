@@ -25,32 +25,26 @@ struct Brick
 class Row
 {
 public:
-    //std::vector< Brick >    bricks_;    // the bricks in this row
     std::vector< uint64_t > seams_;     // the seams that the bricks make
     std::vector< uint64_t > others_;    // all the row #s that do not align with this row
 
     uint64_t                width_;     // cache the row width so it doesn't need re-calculating all the time
+    const uint64_t          max_width_;
 
 
-    Row() : width_(0) {
+    Row( uint64_t max ) : width_(0), max_width_(max) {
         others_.reserve( 2048 );    // swag
         seams_.reserve( 64 );
     }
 
 
-    uint64_t AddBrick( const Brick& b, uint64_t max_width )
+    uint64_t AddBrick( const Brick& b )
     {
         // add a new brick if possible
         // return the new width or 0 if not possible to add
-        if( (width_ + b.width_) > max_width )
+        if( (width_ + b.width_) > max_width_ )
             return 0;
 
-        // I don't really need the bricks, just the seams.
-        //bricks_.emplace_back( b );
-
-        //std::accumulate( seams_.begin(), seams_.end(), 0 )
-        // but you have to ignore the last brick/seam
-        //seams_.emplace_back( width_ + b.width_ );
         if( width_ )
             seams_.emplace_back( width_ );
 
@@ -122,21 +116,6 @@ public:
 
         return false;
     }
-
-//    void MakeSeams()
-//    {
-//        // calculate & cache my seams
-//        uint64_t c = 0;
-//
-//        auto i = bricks_.begin();
-//        auto end = bricks_.end() - 1;	// exclude the last brick - it's not a seam
-//
-//        for( ; i < end; ++i )
-//        {
-//            c += i->width_;
-//            seams_.emplace_back( c );
-//        }
-//    }
 };
 
 
