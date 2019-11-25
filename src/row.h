@@ -18,12 +18,8 @@ public:
 
     Row() {
         _others.reserve( 2048 );    // swag
-        _seams.reserve( 64 );
+        _seams.reserve( (MaxWidth/2) +1 );
     }
-    // Row( uint64_t max ) : _max_width(max) {
-    //     _others.reserve( 2048 );    // swag
-    //     _seams.reserve( 64 );
-    // }
 
     Row( const Row& ) = default;
 
